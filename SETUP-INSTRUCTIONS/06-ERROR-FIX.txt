@@ -1,0 +1,65 @@
+1.
+=> Error:'res.data' is possibly 'undefined' in convex/openai.ts:52
+
+=> FIX:
+make changes, in convex/openai.ts:
+[FROM]:
+const imageUrl = res.data[0].url;
+
+[TO]:
+if (!res?.data || res.data.length === 0) {
+    throw new Error("No image returned");
+}
+
+const imageUrl = res.data[0].url;
+
+2.
+=> ERROR:
+Running TypeScript ...
+Failed to compile.
+./src/components/home/chat-bubble.tsx:85:22
+Type error: Type '{ url: string; width: string; height: string; controls: true; light: true; }' is not assignable to type 'IntrinsicAttributes & Omit<ReactPlayerProps, "ref"> & RefAttributes<HTMLVideoElement>'.
+  Property 'url' does not exist on type 'IntrinsicAttributes & Omit<ReactPlayerProps, "ref"> & RefAttributes<HTMLVideoElement>'.
+  83 |
+  84 | const VideoMessage = ({ message }: { message: IMessage }) => {
+> 85 | 	return <ReactPlayer url={message.content} width='250px' height='250px' controls={true} light={true} />;
+     | 	                    ^
+  86 | };
+  87 |
+  88 | const ImageMessage = ({ message, handleClick }: { message: IMessage; handleClick: () => void }) => {
+Next.js build worker exited with code: 1 and signal: null
+Error: Command "npm run build" exited with 1
+
+=> FIX: downgrade to the previous stable version of react-player (v2), which works with older import statement, import ReactPlayer from "react-player";
+```bash
+npm uninstall react-player
+```
+```bash
+npm install react-player@2.12.0
+```
+- verify change in ./package.json
+
+3.
+=> ERROR
+Running TypeScript ...
+Failed to compile.
+./src/providers/theme-provider.tsx:5:41
+Type error: Cannot find module 'next-themes/dist/types' or its corresponding type declarations.
+  3 | import * as React from "react";
+  4 | import { ThemeProvider as NextThemesProvider } from "next-themes";
+> 5 | import { type ThemeProviderProps } from "next-themes/dist/types";
+    |                                         ^
+  6 |
+  7 | export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
+  8 | 	return <NextThemesProvider {...props}>{children}</NextThemesProvider>;
+Next.js build worker exited with code: 1 and signal: null
+Error: Command "npm run build" exited with 1
+
+=> FIX:
+newer versions of next-themes no longer export types from next-themes/dist/types.
+use a version of next-themes that actually has the internal type path next-themes/dist/types, 
+downgrade back to an older 0.3.x version, starting from 0.4.x that path was removed
+
+```bash
+npm install next-themes@0.3.0
+```
